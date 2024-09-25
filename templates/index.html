@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AntiJudol</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>IKLAN JUDOL CLASSIFICATION ON YOUR PAGE</h1>
+        <h2>Atasi Permasalahan Spam Iklan Judol Pada Page Anda!</h2>
+        <form id="url-form">
+            <label for="url-input">Enter Website URL:</label>
+            <input type="text" id="url-input" name="url" required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="results"></div>
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            Loading...
+        </div>        
+    </div>
+
+    <footer>
+        <p>&copy; <span id="year"></span> Ammar Ihsaan - Dibuat 2024</p>
+    </footer>
+
+    <script>
+        document.getElementById('url-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const url = document.getElementById('url-input').value;
+            const loading = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+            
+            loading.classList.add('active');
+            resultsDiv.innerHTML = '';
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loading.classList.remove('active');
+                if (data.error) {
+                    resultsDiv.innerHTML = `<p>${data.error}</p>`;
+                } else {
+                    data.forEach(result => {
+                        resultsDiv.innerHTML += `
+                            <div class="result">
+                                <img src="${result.url}" alt="Image">
+                                ${result.predictions.map(pred => `
+                                    <p>Model ${pred.model}: Predicted class: ${pred.class}</p>
+                                `).join('')}
+                            </div>
+                        `;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

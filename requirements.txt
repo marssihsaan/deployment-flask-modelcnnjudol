@@ -1,0 +1,6 @@
+Flask
+tensorflow
+numpy
+requests
+Pillow
+beautifulsoup4
